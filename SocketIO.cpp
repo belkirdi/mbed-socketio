@@ -71,7 +71,7 @@ int SocketIO::emit(char *name, char * args) {
         char *json = this->prepareSocketIOJSONMessage(name,args,buffer);
         
         // send a heartbeat
-        this->ws->send("2::");
+        this->ws->send("2:::");
         
         // send the message
         bytesSent = this->ws->send(json);
