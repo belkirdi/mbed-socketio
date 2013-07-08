@@ -135,13 +135,15 @@ class SocketIO
         */
         bool close();
 
+    protected:
+        Websocket   *ws;                // websocket endpoint
+        
     private:
         // Variables
         int         version;            // default socket.io version
         char        *url;               // base URL endpoint to connect to. Example: "myapp.herokuapp.com"
         char        *url_session_key;   // generated session key URL - used to extract the session key 
-        char        *url_session;       // session URL - specific socket.io session to bind to
-        Websocket   *ws;                // websocket endpoint
+        char        *url_session;       // session URL - specific socket.io session to bind to        
         char        *session_key;       // our session key
         char        *ws_channel;        // our websocket channel for the session
         

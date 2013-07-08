@@ -44,6 +44,7 @@ bool SocketIO::close() {
   
     // if we are connected lets disconnect
     if (this->ws != NULL) {
+        this->ws->send("0::");
         this->ws->close();
         closed = this->ws->is_connected();
     }
