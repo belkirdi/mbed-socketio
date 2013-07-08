@@ -165,10 +165,10 @@ void SocketIO::parseSessionKey(char *response, char *sessionkey, char *channel) 
      
      // format:  Session_ID YY ZZ CHANNEL
      char t_sessionkey[128];
-     sscanf(response,"%s %d %d %s",t_sessionkey,&val1,&val2,this->channel);
+     sscanf(response,"%s %d %d %s",t_sessionkey,&val1,&val2,channel);
      
      // create
-     sprintf(sessionkey,"%s/%s",this->channel,t_sessionkey);            
+     sprintf(sessionkey,"%s/%s",channel,t_sessionkey);            
 }
 
 // acquire the session key for our session
