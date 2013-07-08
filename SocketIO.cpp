@@ -118,7 +118,7 @@ void SocketIO::prepareSessionURL() {
     this->url_session = new char[256];
     
     // fill the buffer
-    sprintf(this->url_session,"ws://%s/%s",this->url,this->session_key);
+    sprintf(this->url_session,"ws://%s/socket.io/%d/%s",this->url,this->version,this->session_key);
 }
 
 // attempt a connection via websockets
