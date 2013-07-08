@@ -118,7 +118,7 @@ void SocketIO::prepareSessionURL() {
     this->url_session = new char[256];
     
     // fill the buffer
-    sprintf(this->url_session,"ws://%s/%s/%s",this->url,this->ws_channel,this->session_key);
+    sprintf(this->url_session,"ws://%s/%s",this->url,this->session_key);
 }
 
 // attempt a connection via websockets
@@ -165,10 +165,10 @@ void SocketIO::parseSessionKey(char *response, char *sessionkey, char *channel) 
      
      // format:  Session_ID YY ZZ CHANNEL
      char t_sessionkey[128];
-     sscanf(response,"%s %d %d %s",t_sessionkey,&val1,&val2,channel);
+     sscanf(response,"%s %d %d %s",t_sessionkey,&val1,&val2,this->channel);
      
      // create
-     sprintf(sessionkey,"%s/%s",channel,t_sessionkey);            
+     sprintf(sessionkey,"%s/%s",this->channel,t_sessionkey);            
 }
 
 // acquire the session key for our session
