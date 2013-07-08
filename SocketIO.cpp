@@ -108,7 +108,7 @@ bool SocketIO::is_connected() {
 
 // prepare a SocketIO compatible JSON packet
 char *SocketIO::prepareSocketIOJSONMessage(char *name, char *args, char *buffer) {
-    sprintf(buffer,"5:::{\"name\": \"%s\", \"args\": \"%s\"}",name, args);
+    sprintf(buffer,"5:::{\"name\": \"%s\", \"args\": %s}",name, args);
     return buffer;
 }
 
