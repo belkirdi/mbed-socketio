@@ -34,7 +34,10 @@
 #include "mbed.h"
 
 // Default SocketIO version
-#define DEFAULT_VERSION  1
+#define DEFAULT_VERSION         1
+
+// Default SocketIO message length (suggestion only...)
+#define SOCKETIO_MESSAGE_LENGTH 256
 
 // HTTP support for session key retrieval
 #include "HTTPClient.h"
