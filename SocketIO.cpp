@@ -67,7 +67,7 @@ int SocketIO::emit(char *name, char * args) {
     // only emit if we are connected
     if (this->is_connected() == true) {
         // prepare the JSON message for SocketIO
-        char buffer[256];
+        char buffer[512];
         char *json = this->prepareSocketIOJSONMessage(name,args,buffer);
         
         // send a heartbeat
