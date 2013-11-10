@@ -176,6 +176,7 @@ bool SocketIO::acquireSessionKey() {
     bool haveKey = false;
     HTTPClient http;
     char response[513];
+    memset(response,'\0',513);
     
     // make sure we have buffers
     if (this->session_key != NULL && this->ws_channel != NULL) {
