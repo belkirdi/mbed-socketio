@@ -71,10 +71,13 @@ int SocketIO::emit(char *name, char * args) {
         char *json = this->prepareSocketIOJSONMessage(name,args,buffer);
         
         // send a heartbeat
-        bytesSent = this->ws->send("2::");
+        bytesSent = this->ws->send("5");
+        
+        // start transmitting
+        bytesSent = this->ws->send("2");
         
         // send the message
-        if (bytesSent > 0) bytesSent = this->ws->send(json);
+        bytesSent = this->ws->send(json);
     }
     
     return bytesSent;
@@ -108,7 +111,7 @@ bool SocketIO::is_connected() {
 
 // prepare a SocketIO compatible JSON packet
 char *SocketIO::prepareSocketIOJSONMessage(char *name, char *args, char *buffer) {
-    sprintf(buffer,"5:::{\"name\": \"%s\", \"args\": %s}",name, args);
+    sprintf(buffer,"42[\"message\",\"{\\\"eventName\\\":%s, \\\"data\\\": %s}\"]",name, args);
     return buffer;
 }
 
@@ -118,21 +121,23 @@ void SocketIO::prepareSessionURL() {
     this->url_session = new char[256];
     
     // fill the buffer
-    sprintf(this->url_session,"ws://%s/socket.io/%d/%s",this->url,this->version,this->session_key);
+    sprintf(this->url_session,"ws://%s/socket.io/?EIO=3&transport=websocket&sid=%s",this->url,this->session_key);
 }
 
 // attempt a connection via websockets
 bool SocketIO::attemptWebSocketConnect() {
     // attempt connect
     int status = 0;
-    for(int i=0;i<10;++i) {
+    int i;
+    for(i=0;i<10;++i) {
         status = this->ws->connect();
         if (status != 0) i = 10;
     }
     
     // set the socket.io connect command
-    if (this->ws->is_connected()) this->ws->send("1::");
-    
+    if (this->ws->is_connected())
+        this->ws->send("2probe");
+
     // return connection status
     return this->is_connected();
 }    
@@ -148,7 +153,7 @@ void SocketIO::prepareSessionKeyURL(char *myurl, int myversion) {
     // build out the session key URL
     this->url_session_key = new char[256];
     time_t seconds = time(NULL);
-    sprintf(this->url_session_key,"http://%s/socket.io/%d/?t=%d",this->url,this->version,seconds);
+    sprintf(this->url_session_key,"http://%s/socket.io/?EIO=3&transport=polling&t=%d",this->url,seconds);
     
     // setup the session key and channel buffers
     this->session_key = new char[128];
@@ -159,16 +164,16 @@ void SocketIO::prepareSessionKeyURL(char *myurl, int myversion) {
 void SocketIO::parseSessionKey(char *response, char *sessionkey, char *channel) {
      int val1 = 0;
      int val2 = 0;
-     
-     // convert ":" to " "
-     for(int i=0;i<strlen(response);++i) if (response[i] == ':') response[i] = ' ';
-     
+
      // format:  Session_ID YY ZZ CHANNEL
      char t_sessionkey[128];
-     sscanf(response,"%s %d %d %s",t_sessionkey,&val1,&val2,channel);
-     
+     response += 5;
+     int i=0;
+     memset(t_sessionkey,0,128);
+     for(i=8;i<strlen(response);++i) if (response[i] == '\"') break;
+     strncpy(t_sessionkey, response+8, i-8);
      // create
-     sprintf(sessionkey,"%s/%s",channel,t_sessionkey);            
+     sprintf(sessionkey,"%s",t_sessionkey);
 }
 
 // acquire the session key for our session
@@ -181,12 +186,14 @@ bool SocketIO::acquireSessionKey() {
     // make sure we have buffers
     if (this->session_key != NULL && this->ws_channel != NULL) {
         // request our session key
-        int nread = http.get(this->url_session_key,response,512);
+        int nread = http.get(this->url_session_key,response,512,1000);
         
         // parse the session key
         if (!nread)         
              // parse into the session key
              this->parseSessionKey(response,this->session_key,this->ws_channel);
+        else
+            printf("Error - ret = %d - HTTP return code = %d\r\n", nread, http.getHTTPResponseCode());
         
         // update our status
         if (strlen(this->session_key) > 0) haveKey = true;
